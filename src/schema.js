@@ -7,12 +7,12 @@ import {CommentList, ReplyList} from './data/comments';
 
 import {
   // These are the basic GraphQL types
-  // GraphQLInt,
+  GraphQLInt,
   GraphQLFloat,
   GraphQLString,
    GraphQLList,
   GraphQLObjectType,
-  // GraphQLEnumType,
+  GraphQLEnumType,
 
   // This is used to create required fields and arguments
   GraphQLNonNull,
@@ -33,7 +33,6 @@ const Author = new GraphQLObjectType({
     name: {type: GraphQLString}
   })
 });
-
 
 const Post = new GraphQLObjectType({
   name: "Post",
@@ -82,9 +81,44 @@ const Query = new GraphQLObjectType({
   })
 });
 
+
+/**
+  DEFINE YOUR MUTATIONS BELOW
+**/
+
+const Mutation = new GraphQLObjectType({
+  name: "BlogMutations",
+  description: "Mutations of our blog",
+  fields: () => ({
+    createPost: {
+      type: Post,
+      args: {
+        title: {type: new GraphQLNonNull(GraphQLString)},
+        content: {type: new GraphQLNonNull(GraphQLString)}
+      },
+      resolve: function(source, args) {
+        let post = Object.assign({}, args);
+        // Generate the _id
+        post._id = `${Date.now()}::${Math.ceil(Math.random() * 9999999)}`;
+        // Assign a user
+        post.author = "arunoda";
+
+        // Add the Post to the data store
+        PostsList.push(post);
+
+        // return the new post.
+        return post;
+      }
+    }
+  })
+});
+
 // The Schema
 const Schema = new GraphQLSchema({
-  query: Query
+  query: Query,
+  mutation: Mutation
 });
 
 export default Schema;
+
+
